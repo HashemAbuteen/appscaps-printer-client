@@ -34,10 +34,48 @@ ipcMain.handle('test-print', async (event) => {
         return;
     }
 
-    const win = BrowserWindow.getAllWindows()[0];
-    win.webContents.print({ deviceName: selectedPrinter, silent: true, }, (success, errorType) => {
-        if (!success) console.error(errorType);
-        else console.log('Print initiated successfully');
+    // URL of the page to print
+    const urlToPrint = 'https://appscaps.tech/order?id=66b100a89cc4af05055b09f3&key=129bf&workPlaceId=664dd0c4a2657fe6fcdb5b19';
+
+    // Create a hidden window to load and print the web page
+    const printWin = new BrowserWindow({ show: false });
+
+    printWin.loadURL(urlToPrint);
+
+    printWin.webContents.on('did-finish-load', () => {
+        let receiptBoxDetected = false;
+
+        const checkForReceiptBox = setInterval(() => {
+            printWin.webContents.executeJavaScript(`
+                document.getElementById('receipt-box') !== null
+            `).then(result => {
+                if (result) {
+                    receiptBoxDetected = true;
+                    clearInterval(checkForReceiptBox);
+                    clearTimeout(timeout); // Clear timeout if receipt-box is detected
+
+                    // Print the entire webpage without background colors and images
+                    printWin.webContents.print({
+                        deviceName: selectedPrinter,
+                        silent: true,
+                        printBackground: false // This ensures no background colors or images are printed
+                    }, (success, errorType) => {
+                        if (!success) console.error(errorType);
+                        else console.log('Print initiated successfully');
+                        printWin.close();  // Close the hidden window after printing
+                    });
+                }
+            });
+        }, 1000); // Check every 1 second
+
+        // Timeout after 30 seconds
+        const timeout = setTimeout(() => {
+            if (!receiptBoxDetected) {
+                clearInterval(checkForReceiptBox);
+                console.error('Error: receipt-box div did not appear within 30 seconds.');
+                printWin.close();  // Close the hidden window
+            }
+        }, 30000); // 30 seconds timeout
     });
 });
 
