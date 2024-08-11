@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 
 let selectedPrinter = null;
+let isPrintingEnabled = false;
 
 function createWindow() {
     const win = new BrowserWindow({
@@ -14,8 +15,17 @@ function createWindow() {
         },
     });
 
-    win.loadFile('index.html');
+    win.loadFile('login.html');
 }
+
+ipcMain.handle('login', (event, username, password) => {
+    if (username === 'admin' && password === 'password') {
+        const win = BrowserWindow.getAllWindows()[0];
+        win.loadFile('index.html');
+        return true;
+    }
+    return false;
+});
 
 ipcMain.handle('list-printers', async (event) => {
     const win = BrowserWindow.getAllWindows()[0];
@@ -28,9 +38,19 @@ ipcMain.handle('save-printer', async (event, printerName) => {
     console.log(`Selected printer: ${selectedPrinter}`);
 });
 
+ipcMain.handle('toggle-printing', (event, enabled) => {
+    isPrintingEnabled = enabled;
+    console.log(`Printing enabled: ${isPrintingEnabled}`);
+});
+
 ipcMain.handle('test-print', async (event) => {
     if (!selectedPrinter) {
         console.error('No printer selected');
+        return;
+    }
+
+    if (!isPrintingEnabled) {
+        console.error('Printing is disabled');
         return;
     }
 

@@ -5,13 +5,23 @@
 </head>
 <body>
 <h1>Printer Client</h1>
-<h2>Configure Printer</h2>
-<button id="listPrinters">Update Printers List</button>
-<select id="printersDropdown"></select>
-<button id="savePrinter">Save Printer</button>
-<h2>Selected Printer</h2>
-<p id="selectedPrinter">None</p>
-<button id="testPrint">Test Print</button>
+
+<section>
+    <h2>Configure Printer</h2>
+    <button id="listPrinters">Update Printers List</button>
+    <select id="printersDropdown"></select>
+    <button id="savePrinter">Save Printer</button>
+    <h2>Selected Printer</h2>
+    <p id="selectedPrinter">None</p>
+</section>
+
+<section>
+    <h2>Printing Control</h2>
+    <label for="togglePrinting">Enable Printing:</label>
+    <input type="checkbox" id="togglePrinting"><br><br>
+    <button id="testPrint">Test Print</button>
+</section>
+
 <script src="renderer.js"></script>
 </body>
 </html>
