@@ -1,3 +1,9 @@
+// Listen for new orders
+window.electronAPI.onNewOrder((newOrder) => {
+    console.log('New order received in renderer:', newOrder);
+    // Implement the logic to handle the new order (e.g., display it or trigger a print)
+});
+
 async function listPrinters() {
     const printers = await window.electronAPI.listPrinters();
     const printersDropdown = document.getElementById('printersDropdown');

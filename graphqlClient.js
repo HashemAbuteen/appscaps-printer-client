@@ -11,6 +11,11 @@ const client = createClient({
         connected: () => console.log('WebSocket connected'),
         closed: () => console.log('WebSocket connection closed'),
     },
+    shouldRetry: (error) => {
+        console.log("retrying", new Date());
+        return true;
+    },
+    retryAttempts: 100,
 });
 
 function subscribeToNewOrders(workplaceId, onNewOrder) {

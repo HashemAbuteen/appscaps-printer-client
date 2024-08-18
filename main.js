@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
+const { subscribeToNewOrders } = require('./graphqlClient');
 
 let selectedPrinter = null;
 let isPrintingEnabled = false;
@@ -22,6 +23,10 @@ ipcMain.handle('login', (event, username, password) => {
     if (username === 'admin' && password === 'password') {
         const win = BrowserWindow.getAllWindows()[0];
         win.loadFile('index.html');
+        const workplaceId = "65f69d6facd51ca7e8beff90"; // Replace with the actual workplaceId
+        subscribeToNewOrders(workplaceId, (newOrder) => {
+            console.log('New order received:', newOrder);
+        });
         return true;
     }
     return false;
