@@ -2,7 +2,7 @@ const { createClient } = require('graphql-ws');
 const WebSocket = require('ws'); // Required to support WebSocket in Electron
 
 const client = createClient({
-    url: 'ws://localhost:4000/subscriptions', // Replace with your server URL
+    url: 'wss://api.appscaps.tech/subscriptions', // Replace with your server URL
     webSocketImpl: WebSocket, // Required to work in Electron
     connectionParams: {
         reconnect: true, // Optional: handles reconnection
@@ -12,28 +12,30 @@ const client = createClient({
         closed: () => console.log('WebSocket connection closed'),
     },
     shouldRetry: (error) => {
-        console.log("retrying", new Date());
+        console.log("retrying", error);
         return true;
     },
     retryAttempts: 100,
 });
 
-function subscribeToNewOrders(workplaceId, onNewOrder) {
+function subscribeToNewOrders(token, onNewOrder) {
     console.log("Subscribing to new orders");
 
     const unsubscribe = client.subscribe(
         {
             query: `
-                subscription Subscription($workplaceId: ID!) {
-                  newOrder(workplaceId: $workplaceId) {
+                subscription Subscription($token: String!) {
+                  newOrder(token: $token) {
                     order {
                       clientName
                       clientPhone
                     }
+                    id
+                    workPlaceId
                   }
                 }
             `,
-            variables: { workplaceId },
+            variables: { token },
         },
         {
             next: (data) => {
