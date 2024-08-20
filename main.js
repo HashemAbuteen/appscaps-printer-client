@@ -2,12 +2,28 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { subscribeToNewOrders } = require('./graphqlClient');
 const { createHash } = require('crypto');
+const { ApolloClient, gql, InMemoryCache, HttpLink } = require('apollo-boost');
 
+async function loadStore() {
+    const { default: Store } = await import('electron-store');
+    return new Store();
+}
+
+const client = new ApolloClient({
+    link: new HttpLink({
+        uri: 'https://api.appscaps.tech/graphql',
+        fetch: fetch,
+    }),
+    cache: new InMemoryCache(),
+});
 
 let selectedPrinter = null;
 let isPrintingEnabled = false;
+let store;
+let unsubscribe;
 
-function createWindow() {
+async function createWindow() {
+    store = await loadStore();
     const win = new BrowserWindow({
         width: 800,
         height: 600,
@@ -18,7 +34,13 @@ function createWindow() {
         },
     });
 
-    win.loadFile('login.html');
+    const token = store.get('authToken');
+    if (token) {
+        subscribe(token);
+        win.loadFile('index.html');
+    } else {
+        win.loadFile('login.html');
+    }
 }
 
 const printOrder = (url) => {
@@ -79,25 +101,78 @@ const printOrder = (url) => {
     });
 }
 
-ipcMain.handle('login', (event, username, password) => {
-    if (username === 'admin' && password === 'password') {
+const LOGIN_MUTATION = gql`
+    mutation Login($username: String!, $password: String!) {
+        Login(username: $username, password: $password) {
+            errorMsg
+            loginCred {
+                token
+                role
+                name
+                id
+            }
+            result
+        }
+    }
+`;
+
+
+async function login(username, password) {
+    try {
+        const response = await client.mutate({
+            mutation: LOGIN_MUTATION,
+            variables: { username, password },
+        });
+
+        const { Login } = response.data;
+
+        if (Login.result) {
+            store.set('authToken', Login.loginCred.token); // Store the token
+            return { success: true, token: Login.loginCred.token };
+        } else {
+            return { success: false, errorMsg: Login.errorMsg };
+        }
+    } catch (error) {
+        console.error('Login request failed', error);
+        return { success: false, errorMsg: 'Request failed' };
+    }
+}
+
+const subscribe = (token)=> {
+    unsubscribe = subscribeToNewOrders(token, (newOrder) => {
+        console.log('New order received:', newOrder);
+        const key = createHash("sha256")
+            .update(newOrder.order.clientName + newOrder.order.clientPhone)
+            .digest("hex")
+            .substring(0, 5);
+        // const url = `https://appscaps.tech/order?id=${newOrder.id}&key=${key}&workPlaceId=${newOrder.workPlaceId}`;
+        const url = `http://appscaps.tech/order?id=${newOrder.id}&key=${key}&workPlaceId=${newOrder.workPlaceId}`;
+        console.log('Printing order:', url);
+        printOrder(url);
+    });
+}
+
+
+ipcMain.handle('login', async (event, username, password) => {
+    const loginResult = await login(username, password);
+    if (loginResult.success) {
         const win = BrowserWindow.getAllWindows()[0];
         win.loadFile('index.html');
-        const token = "yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IndhbGVlZCIsImlkIjoiNjVmZTgwOGU0Njg4ZjAzZjBkNDA5Yzk1Iiwicm9sZSI6IkFkbWluIiwibmFtZSI6IldhbGVlZCIsInNob3BJZCI6IjY1ZjY5ZDZmYWNkNTFjYTdlOGJlZmY5MCIsImlhdCI6MTcyNDA3MDY4MH0.vYy7vx6vibAvOK4iZ2SE620MYhwTz6LnuvViNLGQGlI"; // Replace with the actual workplaceId
-        subscribeToNewOrders(token, (newOrder) => {
-            console.log('New order received:', newOrder);
-            const key = createHash("sha256")
-                .update(newOrder.order.clientName + newOrder.order.clientPhone)
-                .digest("hex")
-                .substring(0, 5);
-            // const url = `https://appscaps.tech/order?id=${newOrder.id}&key=${key}&workPlaceId=${newOrder.workPlaceId}`;
-            const url = `http://appscaps.tech/order?id=${newOrder.id}&key=${key}&workPlaceId=${newOrder.workPlaceId}`;
-            console.log('Printing order:', url);
-            printOrder(url);
-        });
+        subscribe(loginResult.token);
         return true;
+    } else {
+        return false;
     }
-    return false;
+});
+
+ipcMain.handle('logout', async (event) => {
+    console.log('Logging out');
+    store.delete('authToken');
+    if (unsubscribe) {
+        unsubscribe();
+    }
+    const win = BrowserWindow.getAllWindows()[0];
+    win.loadFile('login.html');
 });
 
 ipcMain.handle('list-printers', async (event) => {

@@ -36,3 +36,8 @@ document.getElementById('togglePrinting').addEventListener('change', async (even
     const enabled = event.target.checked;
     await window.electronAPI.togglePrinting(enabled);
 });
+
+document.getElementById('logoutButton').addEventListener('click', async () => {
+    await window.electronAPI.logout();
+});
+
