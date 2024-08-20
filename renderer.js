@@ -16,10 +16,15 @@ async function listPrinters() {
     });
 }
 
-document.getElementById('listPrinters').addEventListener('click', listPrinters);
+document.addEventListener('DOMContentLoaded', async () => {
+    await listPrinters();
+    const selectedPrinter = await window.electronAPI.getSelectedPrinter();
+    document.getElementById('selectedPrinter').textContent = selectedPrinter;
+    const isPrintingEnabled = await window.electronAPI.isPrintingEnabled();
+    document.getElementById('togglePrinting').checked = isPrintingEnabled;
+});
 
-// Call listPrinters on initialization
-document.addEventListener('DOMContentLoaded', listPrinters);
+document.getElementById('listPrinters').addEventListener('click', listPrinters);
 
 document.getElementById('savePrinter').addEventListener('click', async () => {
     const printersDropdown = document.getElementById('printersDropdown');

@@ -183,12 +183,24 @@ ipcMain.handle('list-printers', async (event) => {
 
 ipcMain.handle('save-printer', async (event, printerName) => {
     selectedPrinter = printerName;
+    store.set('selectedPrinter', selectedPrinter);
     console.log(`Selected printer: ${selectedPrinter}`);
 });
 
 ipcMain.handle('toggle-printing', (event, enabled) => {
     isPrintingEnabled = enabled;
+    store.set('isPrintingEnabled', isPrintingEnabled);
     console.log(`Printing enabled: ${isPrintingEnabled}`);
+});
+
+ipcMain.handle('get-selected-printer', async (event) => {
+    selectedPrinter = store.get('selectedPrinter');
+    return selectedPrinter;
+});
+
+ipcMain.handle('is-printing-enabled', async (event) => {
+    isPrintingEnabled = store.get('isPrintingEnabled');
+    return isPrintingEnabled;
 });
 
 ipcMain.handle('test-print', async (event) =>{
