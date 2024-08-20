@@ -37,9 +37,9 @@ async function createWindow() {
     const token = store.get('authToken');
     if (token) {
         subscribe(token);
-        win.loadFile('index.html');
+        win.loadFile('src/index.html');
     } else {
-        win.loadFile('login.html');
+        win.loadFile('src/login.html');
     }
 }
 
@@ -157,7 +157,7 @@ ipcMain.handle('login', async (event, username, password) => {
     const loginResult = await login(username, password);
     if (loginResult.success) {
         const win = BrowserWindow.getAllWindows()[0];
-        win.loadFile('index.html');
+        win.loadFile('src/index.html');
         subscribe(loginResult.token);
         return true;
     } else {
@@ -172,7 +172,7 @@ ipcMain.handle('logout', async (event) => {
         unsubscribe();
     }
     const win = BrowserWindow.getAllWindows()[0];
-    win.loadFile('login.html');
+    win.loadFile('src/login.html');
 });
 
 ipcMain.handle('list-printers', async (event) => {
