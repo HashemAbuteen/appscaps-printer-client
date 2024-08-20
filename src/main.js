@@ -1,3 +1,12 @@
+const { autoUpdater } = require('electron-updater');
+
+autoUpdater.checkForUpdatesAndNotify();
+
+autoUpdater.on('update-downloaded', () => {
+    autoUpdater.quitAndInstall();
+});
+
+
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { subscribeToNewOrders } = require('./graphqlClient');
