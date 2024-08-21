@@ -30,6 +30,8 @@ let selectedPrinter = null;
 let isPrintingEnabled = false;
 let store;
 let unsubscribe;
+let paperSize = '80mm';
+let userMargin = {};
 
 async function createWindow() {
     store = await loadStore();
@@ -63,10 +65,7 @@ const printOrder = (url) => {
         return;
     }
 
-    // URL of the page to print
     const urlToPrint = url;
-
-    // Create a hidden window to load and print the web page
     const printWin = new BrowserWindow({ show: false });
 
     printWin.loadURL(urlToPrint);
@@ -83,18 +82,58 @@ const printOrder = (url) => {
                     clearInterval(checkForReceiptBox);
                     clearTimeout(timeout); // Clear timeout if receipt-box is detected
 
-                    setTimeout(() => {
-                        // Print the entire webpage without background colors and images
-                        printWin.webContents.print({
-                            deviceName: selectedPrinter,
-                            silent: true,
-                            printBackground: false // This ensures no background colors or images are printed
-                        }, (success, errorType) => {
-                            if (!success) console.error(errorType);
-                            else console.log('Print initiated successfully');
-                            printWin.close();  // Close the hidden window after printing
-                        });
-                    }, 5000);
+                    printWin.webContents.executeJavaScript(`
+                        (function() {
+                            const receiptBox = document.getElementById('receipt-box');
+                            if (receiptBox) {
+                                return receiptBox.offsetHeight; // Height in pixels
+                            } else {
+                                return document.body.scrollHeight; // Fallback to entire page height
+                            }
+                        })();
+                    `).then((contentHeightInPixels) => {
+                        if (contentHeightInPixels) {
+                            // convert height from pixel to microns
+                            const contentHeightInMicrons = contentHeightInPixels * 25400 / 96;
+
+                            let pageSize = {
+                                width: 80 * 1000,
+                                height: contentHeightInMicrons,
+                            }
+                            if(paperSize === '57mm'){
+                                pageSize.width = 57 * 1000;
+                            }
+                            if (paperSize === '80mm') {
+                                pageSize.width = 80 * 1000;
+                            }if(paperSize === '76mm'){
+                                pageSize.width = 76 * 1000;
+                            }
+                            if (paperSize === '110mm') {
+                                pageSize.width = 110 * 1000;
+                            }
+                            printWin.webContents.print({
+                                pageSize,
+                                margins: {
+                                    marginType: 'custom',
+                                    ...userMargin,
+                                },
+                                scaleFactor: 0.5,
+                                deviceName: selectedPrinter,
+                                silent: true,
+                                printBackground: false // No background colors or images
+                            }, (success, errorType) => {
+                                if (!success) console.error(errorType);
+                                else console.log('Print initiated successfully');
+                                printWin.close();
+                            });
+                        } else {
+                            console.error('Failed to calculate content height.');
+                            printWin.close();
+                        }
+                    }).catch((error) => {
+                        console.error('Error while executing JavaScript to calculate height:', error);
+                        printWin.close();
+                    });
                 }
             });
         }, 1000); // Check every 1 second
@@ -218,6 +257,26 @@ ipcMain.handle('test-print', async (event) =>{
 
 ipcMain.handle('print-order', async (event, url) => {
     printOrder(url);
+});
+
+ipcMain.handle('set-paper-size', async (event, size) => {
+    paperSize = size;
+    store.set('paperSize', paperSize);
+});
+
+ipcMain.handle('get-paper-size', async (event) => {
+    paperSize = store.get('paperSize') || '80mm';
+    return paperSize;
+});
+
+ipcMain.handle('set-user-margin', async (event, margin, direction) => {
+    userMargin[direction] = margin;
+    store.set('userMargin', userMargin);
+});
+
+ipcMain.handle('get-user-margin', async (event) => {
+    userMargin = store.get('userMargin') || {};
+    return userMargin;
 });
 
 app.on('ready', createWindow);
