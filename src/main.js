@@ -57,99 +57,6 @@ async function createWindow() {
     }
 }
 
-const printOrder = (url) => {
-    if (!selectedPrinter) {
-        console.error('No printer selected');
-        return;
-    }
-
-    if (!isPrintingEnabled) {
-        console.error('Printing is disabled');
-        return;
-    }
-
-    const urlToPrint = url;
-    const printWin = new BrowserWindow({ show: true });
-
-    printWin.loadURL(urlToPrint);
-
-    printWin.webContents.on('did-finish-load', () => {
-        let receiptBoxDetected = false;
-
-        const checkForReceiptBox = setInterval(() => {
-            printWin.webContents.executeJavaScript(`
-                document.getElementById('receipt-box') !== null
-            `).then(result => {
-                if (result) {
-                    receiptBoxDetected = true;
-                    clearInterval(checkForReceiptBox);
-                    clearTimeout(timeout); // Clear timeout if receipt-box is detected
-
-                    printWin.webContents.executeJavaScript(`
-                        (function() {
-                            const receiptBox = document.getElementById('receipt-box');
-                            if (receiptBox) {
-                                return receiptBox.offsetHeight; // Height in pixels
-                            } else {
-                                return document.body.scrollHeight; // Fallback to entire page height
-                            }
-                        })();
-                    `).then((contentHeightInPixels) => {
-                        if (contentHeightInPixels) {
-                            // convert height from pixel to microns
-                            const contentHeightInMicrons = contentHeightInPixels * 25400 / 96;
-
-                            let pageSize = {
-                                width: 80 * 1000,
-                                height: contentHeightInMicrons,
-                            }
-                            if(paperSize === '57mm'){
-                                pageSize.width = 57 * 1000;
-                            }
-                            if (paperSize === '80mm') {
-                                pageSize.width = 80 * 1000;
-                            }if(paperSize === '76mm'){
-                                pageSize.width = 76 * 1000;
-                            }
-                            if (paperSize === '110mm') {
-                                pageSize.width = 110 * 1000;
-                            }
-                            printWin.webContents.print({
-                                pageSize,
-                                margins: {
-                                    marginType: 'custom',
-                                    ...userMargin,
-                                },
-                                deviceName: selectedPrinter,
-                                silent: true,
-                                printBackground: false // No background colors or images
-                            }, (success, errorType) => {
-                                if (!success) console.error(errorType);
-                                else console.log('Print initiated successfully');
-                                printWin.close();
-                            });
-                        } else {
-                            console.error('Failed to calculate content height.');
-                            printWin.close();
-                        }
-                    }).catch((error) => {
-                        console.error('Error while executing JavaScript to calculate height:', error);
-                        printWin.close();
-                    });
-                }
-            });
-        }, 1000); // Check every 1 second
-
-        // Timeout after 30 seconds
-        const timeout = setTimeout(() => {
-            if (!receiptBoxDetected) {
-                clearInterval(checkForReceiptBox);
-                console.error('Error: receipt-box div did not appear within 30 seconds.');
-                printWin.close();  // Close the hidden window
-            }
-        }, 30000); // 30 seconds timeout
-    });
-}
 
 const LOGIN_MUTATION = gql`
     mutation Login($username: String!, $password: String!) {
@@ -214,7 +121,7 @@ const printOrderWithOrderObject = (newOrder) => {
         return;
     }
 
-    const printWin = new BrowserWindow({ show: true });
+    const printWin = new BrowserWindow({ show: false });
 
     // convert created at from timestamp to date
     const orderTime = new Date(Number(newOrder.createdAt)).toLocaleString('en-GB');
@@ -358,14 +265,6 @@ ipcMain.handle('get-selected-printer', async (event) => {
 ipcMain.handle('is-printing-enabled', async (event) => {
     isPrintingEnabled = store.get('isPrintingEnabled');
     return isPrintingEnabled;
-});
-
-ipcMain.handle('test-print', async (event) =>{
-    printOrder('https://appscaps.tech/order?id=66b100a89cc4af05055b09f3&key=129bf&workPlaceId=664dd0c4a2657fe6fcdb5b19');
-});
-
-ipcMain.handle('print-order', async (event, url) => {
-    printOrder(url);
 });
 
 ipcMain.handle('set-paper-size', async (event, size) => {
