@@ -29,9 +29,40 @@ function subscribeToNewOrders(token, onNewOrder) {
                     order {
                       clientName
                       clientPhone
+                      phoneCountry
+                      paymentMethod
+                      address
+                      prepareTime
+                      deliveryFee
+                      prepareType
+                      couponCode
+                      numberOfPersons
+                      deliveryType
+                      items {
+                        title
+                        currentValue
+                        price
+                        options {
+                          title
+                          options {
+                            price
+                            title
+                            currentValue
+                          }
+                        }
+                      }
                     }
+                    grandTotal
                     id
                     workPlaceId
+                    total
+                    createdAt
+                    deliveryFee
+                    workPlaceStyle {
+                      images {
+                        ReceiptsLogo
+                      }
+                    }
                   }
                 }
             `,
