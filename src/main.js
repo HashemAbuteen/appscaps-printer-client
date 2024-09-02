@@ -210,7 +210,7 @@ const printOrderWithOrderObject = (newOrder) => {
         }, (success, errorType) => {
             if (!success) console.error(errorType);
             else console.log('Print initiated successfully');
-            // printWin.close();
+            printWin.close();
         });
     });
 };
