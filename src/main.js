@@ -69,7 +69,7 @@ const printOrder = (url) => {
     }
 
     const urlToPrint = url;
-    const printWin = new BrowserWindow({ show: false });
+    const printWin = new BrowserWindow({ show: true });
 
     printWin.loadURL(urlToPrint);
 
@@ -120,7 +120,6 @@ const printOrder = (url) => {
                                     marginType: 'custom',
                                     ...userMargin,
                                 },
-                                scaleFactor: 0.5,
                                 deviceName: selectedPrinter,
                                 silent: true,
                                 printBackground: false // No background colors or images
@@ -199,9 +198,102 @@ const subscribe = (token)=> {
         // const url = `https://appscaps.tech/order?id=${newOrder.id}&key=${key}&workPlaceId=${newOrder.workPlaceId}`;
         const url = `http://appscaps.tech/order?id=${newOrder.id}&key=${key}&workPlaceId=${newOrder.workPlaceId}`;
         console.log('Printing order:', url);
-        printOrder(url);
+        // printOrder(url);
+        printOrderWithOrderObject(newOrder);
     });
 }
+
+const printOrderWithOrderObject = (newOrder) => {
+    if (!selectedPrinter) {
+        console.error('No printer selected');
+        return;
+    }
+
+    if (!isPrintingEnabled) {
+        console.error('Printing is disabled');
+        return;
+    }
+
+    const printWin = new BrowserWindow({ show: true });
+
+    // Create HTML content to display the order details
+    const orderHtml = `
+        <html>
+            <body>
+                <div id="receipt-box">
+                    <h1>Order ID: ${newOrder.id}</h1>
+                    <p>Client Name: ${newOrder.clientName}</p>
+                    <p>Client Phone: ${newOrder.clientPhone}</p>
+                    <p>Items:</p>
+                    <ul>
+                        ${newOrder.items.map(item => `
+                            <li>${item.quantity} x ${item.name} - ${item.price}</li>
+                        `).join('')}
+                    </ul>
+                    <p>Total: ${newOrder.totalPrice}</p>
+                </div>
+            </body>
+        </html>
+    `;
+
+    // Load the HTML content into the hidden window
+    printWin.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(orderHtml)}`);
+
+    printWin.webContents.on('did-finish-load', () => {
+        printWin.webContents.executeJavaScript(`
+            (function() {
+                const receiptBox = document.getElementById('receipt-box');
+                if (receiptBox) {
+                    return receiptBox.offsetHeight; // Height in pixels
+                } else {
+                    return document.body.scrollHeight; // Fallback to entire page height
+                }
+            })();
+        `).then((contentHeightInPixels) => {
+            if (contentHeightInPixels) {
+                const contentHeightInMicrons = contentHeightInPixels * 25400 / 96;
+
+                let pageSize = {
+                    width: 80 * 1000,
+                    height: contentHeightInMicrons,
+                };
+                if(paperSize === '57mm'){
+                    pageSize.width = 57 * 1000;
+                }
+                if (paperSize === '80mm') {
+                    pageSize.width = 80 * 1000;
+                }if(paperSize === '76mm'){
+                    pageSize.width = 76 * 1000;
+                }
+                if (paperSize === '110mm') {
+                    pageSize.width = 110 * 1000;
+                }
+
+                printWin.webContents.print({
+                    pageSize,
+                    margins: {
+                        marginType: 'custom',
+                        ...userMargin,
+                    },
+                    deviceName: selectedPrinter,
+                    silent: true,
+                    printBackground: false
+                }, (success, errorType) => {
+                    if (!success) console.error(errorType);
+                    else console.log('Print initiated successfully');
+                    printWin.close();
+                });
+            } else {
+                console.error('Failed to calculate content height.');
+                printWin.close();
+            }
+        }).catch((error) => {
+            console.error('Error while executing JavaScript to calculate height:', error);
+            printWin.close();
+        });
+    });
+};
+
 
 
 ipcMain.handle('login', async (event, username, password) => {
