@@ -102,10 +102,8 @@ const subscribe = (token)=> {
             .update(newOrder.order.clientName + newOrder.order.clientPhone)
             .digest("hex")
             .substring(0, 5);
-        // const url = `https://appscaps.tech/order?id=${newOrder.id}&key=${key}&workPlaceId=${newOrder.workPlaceId}`;
         const url = `http://appscaps.tech/order?id=${newOrder.id}&key=${key}&workPlaceId=${newOrder.workPlaceId}`;
         console.log('Printing order:', url);
-        // printOrder(url);
         printOrderWithOrderObject(newOrder);
     });
 }
@@ -121,9 +119,18 @@ const printOrderWithOrderObject = (newOrder) => {
         return;
     }
 
-    const printWin = new BrowserWindow({ show: false });
+    const printWin = new BrowserWindow({show: false});
 
-    // convert created at from timestamp to date
+    // translate delivery type to Arabic
+    let deliveryType = '';
+    if (newOrder.order.deliveryType === 'Delivery') {
+        deliveryType = 'توصيل';
+    } else if (newOrder.order.deliveryType === 'TakeAway') {
+        deliveryType = 'استلام شخصي';
+    } else if (newOrder.order.deliveryType === 'DineIn') {
+        deliveryType = 'داخل المحل';
+    }
+
     const orderTime = new Date(Number(newOrder.createdAt)).toLocaleString('en-GB');
     // Create HTML content to display the order details
     const orderHtml = `
@@ -132,12 +139,27 @@ const printOrderWithOrderObject = (newOrder) => {
             <link rel="preconnect" href="https://fonts.googleapis.com">
             <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
             <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@100..900&display=swap" rel="stylesheet">
+            <style>
+                @media only print {
+                    html {
+                        width: ${paperSize || '80mm'};
+                        padding-top: ${userMargin.top || 0}mm;
+                        padding-right: ${userMargin.right || 0}mm;
+                        padding-bottom: ${userMargin.bottom || 0}mm;
+                        padding-left: ${userMargin.left || 0}mm;
+                    }
+                    body {
+                        margin: 0;
+                        padding: 0;
+                    }
+                }
+            </style>
         </head>
-        <body style="direction: rtl;font-family: Alexandria, sans-serif;">
+        <body style="direction: rtl;font-family: Alexandria, sans-serif; padding: 1mm">
             <div id="receipt-box">
                 <p style="font-size: 12px;text-align: center">${newOrder.id}</p>
                 <div style="display: flex; justify-content: center"><img style="width:100px" src=${newOrder.workPlaceStyle.images.ReceiptsLogo}></div>
-                <h1 style="text-align: center">${newOrder.order.deliveryType}</h1>
+                <h1 style="text-align: center">${deliveryType}</h1>
                 <h5 style="text-align: center">${orderTime}</h5>
                 <hr>
                 <h3>تفاصيل الزبون</h3>
@@ -169,6 +191,8 @@ const printOrderWithOrderObject = (newOrder) => {
                 <p>ثمن الاصناف: ${newOrder.total}₪</p>
                 <p>رسوم التوصيل: ${newOrder.deliveryFee}₪</p>
                 <p>الإجمالي الكلي للدفع: ${newOrder.grandTotal}₪</p>
+                <hr>
+                <p style="font-size: 12px;text-align: center">Powered By:\nApps Caps LTD</p>
             </div>
         </body>
     </html>
@@ -178,31 +202,12 @@ const printOrderWithOrderObject = (newOrder) => {
     printWin.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(orderHtml)}`);
 
     printWin.webContents.on('did-finish-load', async () => {
-        let pageSize = {
-            width: 80 * 1000,
-            height: 10000000,
-        };
-        if (paperSize === '57mm') {
-            pageSize.width = 57 * 1000;
-        }
-        if (paperSize === '80mm') {
-            pageSize.width = 80 * 1000;
-        }
-        if (paperSize === '76mm') {
-            pageSize.width = 76 * 1000;
-        }
-        if (paperSize === '110mm') {
-            pageSize.width = 110 * 1000;
-        }
 
-        // after 3 seconds print the order make sure printWin is printWin after 3 seconds
         // wait 3 seconds
         await new Promise(resolve => setTimeout(resolve, 3000));
         printWin.webContents.print({
-            pageSize,
             margins: {
-                marginType: 'custom',
-                ...userMargin,
+                marginType: 'none',
             },
             deviceName: selectedPrinter,
             silent: true,

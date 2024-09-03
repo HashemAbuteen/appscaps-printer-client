@@ -41,9 +41,6 @@ document.getElementById('savePrinter').addEventListener('click', async () => {
     document.getElementById('selectedPrinter').textContent = selectedPrinter;
 });
 
-document.getElementById('testPrint').addEventListener('click', async () => {
-    await window.electronAPI.testPrint();
-});
 
 document.getElementById('togglePrinting').addEventListener('change', async (event) => {
     const enabled = event.target.checked;
