@@ -33,6 +33,8 @@ let selectedPrinter = null;
 let isPrintingEnabled = false;
 let store;
 let unsubscribe;
+let paperSize = '80mm';
+let userMargin = {};
 
 async function createWindow() {
     store = await loadStore();
@@ -256,6 +258,26 @@ ipcMain.handle('get-selected-printer', async (event) => {
 ipcMain.handle('is-printing-enabled', async (event) => {
     isPrintingEnabled = store.get('isPrintingEnabled');
     return isPrintingEnabled;
+});
+
+ipcMain.handle('set-paper-size', async (event, size) => {
+    paperSize = size;
+    store.set('paperSize', paperSize);
+});
+
+ipcMain.handle('get-paper-size', async (event) => {
+    paperSize = store.get('paperSize') || '80mm';
+    return paperSize;
+});
+
+ipcMain.handle('set-user-margin', async (event, margin, direction) => {
+    userMargin[direction] = margin;
+    store.set('userMargin', userMargin);
+});
+
+ipcMain.handle('get-user-margin', async (event) => {
+    userMargin = store.get('userMargin') || {};
+    return userMargin;
 });
 
 app.on('ready', createWindow);
