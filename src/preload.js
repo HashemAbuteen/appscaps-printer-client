@@ -6,12 +6,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     listPrinters: () => ipcRenderer.invoke('list-printers'),
     savePrinter: (printerName) => ipcRenderer.invoke('save-printer', printerName),
     togglePrinting: (enabled) => ipcRenderer.invoke('toggle-printing', enabled),
-    testPrint: () => ipcRenderer.invoke('test-print'),
     onNewOrder: (callback) => ipcRenderer.on('new-order', (event, newOrder) => callback(newOrder)),
     getSelectedPrinter: () => ipcRenderer.invoke('get-selected-printer'),
     isPrintingEnabled: () => ipcRenderer.invoke('is-printing-enabled'),
-    setPaperSize: (paperSize) => ipcRenderer.invoke('set-paper-size', paperSize),
-    getPaperSize: () => ipcRenderer.invoke('get-paper-size'),
-    setUserMargin: (margin, direction) => ipcRenderer.invoke('set-user-margin', margin, direction),
-    getUserMargin: () => ipcRenderer.invoke('get-user-margin'),
 });

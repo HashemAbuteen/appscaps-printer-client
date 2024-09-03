@@ -22,14 +22,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('selectedPrinter').textContent = selectedPrinter;
     const isPrintingEnabled = await window.electronAPI.isPrintingEnabled();
     document.getElementById('togglePrinting').checked = isPrintingEnabled;
-    const paperSize = await window.electronAPI.getPaperSize();
-    document.getElementById('paperSize').value = paperSize;
-    const userMargin = await window.electronAPI.getUserMargin();
-    console.log(userMargin);
-    document.getElementById('marginLeft').value = userMargin.left || 0;
-    document.getElementById('marginTop').value = userMargin.top || 0;
-    document.getElementById('marginRight').value = userMargin.right || 0;
-    document.getElementById('marginBottom').value = userMargin.bottom || 0;
 });
 
 document.getElementById('listPrinters').addEventListener('click', listPrinters);
@@ -41,38 +33,10 @@ document.getElementById('savePrinter').addEventListener('click', async () => {
     document.getElementById('selectedPrinter').textContent = selectedPrinter;
 });
 
-document.getElementById('testPrint').addEventListener('click', async () => {
-    await window.electronAPI.testPrint();
-});
 
 document.getElementById('togglePrinting').addEventListener('change', async (event) => {
     const enabled = event.target.checked;
     await window.electronAPI.togglePrinting(enabled);
-});
-
-document.getElementById('paperSize').addEventListener('change', async (event) => {
-    const paperSize = event.target.value;
-    await window.electronAPI.setPaperSize(paperSize);
-});
-
-document.getElementById('marginLeft').addEventListener('change', async (event) => {
-    const margin = event.target.value;
-    await window.electronAPI.setUserMargin(margin, 'left');
-});
-
-document.getElementById('marginTop').addEventListener('change', async (event) => {
-    const margin = event.target.value;
-    await window.electronAPI.setUserMargin(margin, 'top');
-});
-
-document.getElementById('marginRight').addEventListener('change', async (event) => {
-    const margin = event.target.value;
-    await window.electronAPI.setUserMargin(margin, 'right');
-});
-
-document.getElementById('marginBottom').addEventListener('change', async (event) => {
-    const margin = event.target.value;
-    await window.electronAPI.setUserMargin(margin, 'bottom');
 });
 
 document.getElementById('logoutButton').addEventListener('click', async () => {

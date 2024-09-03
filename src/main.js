@@ -33,8 +33,6 @@ let selectedPrinter = null;
 let isPrintingEnabled = false;
 let store;
 let unsubscribe;
-let paperSize = '80mm';
-let userMargin = {};
 
 async function createWindow() {
     store = await loadStore();
@@ -102,10 +100,8 @@ const subscribe = (token)=> {
             .update(newOrder.order.clientName + newOrder.order.clientPhone)
             .digest("hex")
             .substring(0, 5);
-        // const url = `https://appscaps.tech/order?id=${newOrder.id}&key=${key}&workPlaceId=${newOrder.workPlaceId}`;
         const url = `http://appscaps.tech/order?id=${newOrder.id}&key=${key}&workPlaceId=${newOrder.workPlaceId}`;
         console.log('Printing order:', url);
-        // printOrder(url);
         printOrderWithOrderObject(newOrder);
     });
 }
@@ -123,7 +119,6 @@ const printOrderWithOrderObject = (newOrder) => {
 
     const printWin = new BrowserWindow({ show: false });
 
-    // convert created at from timestamp to date
     const orderTime = new Date(Number(newOrder.createdAt)).toLocaleString('en-GB');
     // Create HTML content to display the order details
     const orderHtml = `
@@ -133,7 +128,7 @@ const printOrderWithOrderObject = (newOrder) => {
             <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
             <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@100..900&display=swap" rel="stylesheet">
         </head>
-        <body style="direction: rtl;font-family: Alexandria, sans-serif;">
+        <body style="direction: rtl;font-family: Alexandria, sans-serif; padding: 2rem">
             <div id="receipt-box">
                 <p style="font-size: 12px;text-align: center">${newOrder.id}</p>
                 <div style="display: flex; justify-content: center"><img style="width:100px" src=${newOrder.workPlaceStyle.images.ReceiptsLogo}></div>
@@ -178,32 +173,10 @@ const printOrderWithOrderObject = (newOrder) => {
     printWin.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(orderHtml)}`);
 
     printWin.webContents.on('did-finish-load', async () => {
-        let pageSize = {
-            width: 80 * 1000,
-            height: 10000000,
-        };
-        if (paperSize === '57mm') {
-            pageSize.width = 57 * 1000;
-        }
-        if (paperSize === '80mm') {
-            pageSize.width = 80 * 1000;
-        }
-        if (paperSize === '76mm') {
-            pageSize.width = 76 * 1000;
-        }
-        if (paperSize === '110mm') {
-            pageSize.width = 110 * 1000;
-        }
 
-        // after 3 seconds print the order make sure printWin is printWin after 3 seconds
         // wait 3 seconds
         await new Promise(resolve => setTimeout(resolve, 3000));
         printWin.webContents.print({
-            pageSize,
-            margins: {
-                marginType: 'custom',
-                ...userMargin,
-            },
             deviceName: selectedPrinter,
             silent: true,
             printBackground: false
@@ -265,26 +238,6 @@ ipcMain.handle('get-selected-printer', async (event) => {
 ipcMain.handle('is-printing-enabled', async (event) => {
     isPrintingEnabled = store.get('isPrintingEnabled');
     return isPrintingEnabled;
-});
-
-ipcMain.handle('set-paper-size', async (event, size) => {
-    paperSize = size;
-    store.set('paperSize', paperSize);
-});
-
-ipcMain.handle('get-paper-size', async (event) => {
-    paperSize = store.get('paperSize') || '80mm';
-    return paperSize;
-});
-
-ipcMain.handle('set-user-margin', async (event, margin, direction) => {
-    userMargin[direction] = margin;
-    store.set('userMargin', userMargin);
-});
-
-ipcMain.handle('get-user-margin', async (event) => {
-    userMargin = store.get('userMargin') || {};
-    return userMargin;
 });
 
 app.on('ready', createWindow);
