@@ -119,7 +119,17 @@ const printOrderWithOrderObject = (newOrder) => {
         return;
     }
 
-    const printWin = new BrowserWindow({ show: false });
+    const printWin = new BrowserWindow({show: false});
+
+    // translate delivery type to Arabic
+    let deliveryType = '';
+    if (newOrder.order.deliveryType === 'Delivery') {
+        deliveryType = 'توصيل';
+    } else if (newOrder.order.deliveryType === 'TakeAway') {
+        deliveryType = 'استلام شخصي';
+    } else if (newOrder.order.deliveryType === 'DineIn') {
+        deliveryType = 'داخل المحل';
+    }
 
     const orderTime = new Date(Number(newOrder.createdAt)).toLocaleString('en-GB');
     // Create HTML content to display the order details
@@ -132,9 +142,11 @@ const printOrderWithOrderObject = (newOrder) => {
             <style>
                 @media only print {
                     html {
-                        width: 57mm;
-                        border: 1px solid red;
-                        margin-top: 20mm;
+                        width: ${paperSize || '80mm'};
+                        padding-top: ${userMargin.top || 0}mm;
+                        padding-right: ${userMargin.right || 0}mm;
+                        padding-bottom: ${userMargin.bottom || 0}mm;
+                        padding-left: ${userMargin.left || 0}mm;
                     }
                     body {
                         margin: 0;
@@ -147,7 +159,7 @@ const printOrderWithOrderObject = (newOrder) => {
             <div id="receipt-box">
                 <p style="font-size: 12px;text-align: center">${newOrder.id}</p>
                 <div style="display: flex; justify-content: center"><img style="width:100px" src=${newOrder.workPlaceStyle.images.ReceiptsLogo}></div>
-                <h1 style="text-align: center">${newOrder.order.deliveryType}</h1>
+                <h1 style="text-align: center">${deliveryType}</h1>
                 <h5 style="text-align: center">${orderTime}</h5>
                 <hr>
                 <h3>تفاصيل الزبون</h3>
