@@ -1,5 +1,7 @@
 const { autoUpdater } = require('electron-updater');
 
+autoUpdater.checkForUpdatesAndNotify();
+
 // every 60 minutes check for updates
 setInterval(() => {
     autoUpdater.checkForUpdatesAndNotify();
