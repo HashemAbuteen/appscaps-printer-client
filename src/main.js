@@ -127,8 +127,21 @@ const printOrderWithOrderObject = (newOrder) => {
             <link rel="preconnect" href="https://fonts.googleapis.com">
             <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
             <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@100..900&display=swap" rel="stylesheet">
+            <style>
+                @media only print {
+                    html {
+                        width: 57mm;
+                        border: 1px solid red;
+                        margin-top: 20mm;
+                    }
+                    body {
+                        margin: 0;
+                        padding: 0;
+                    }
+                }
+            </style>
         </head>
-        <body style="direction: rtl;font-family: Alexandria, sans-serif; padding: 2rem">
+        <body style="direction: rtl;font-family: Alexandria, sans-serif; padding: 1mm">
             <div id="receipt-box">
                 <p style="font-size: 12px;text-align: center">${newOrder.id}</p>
                 <div style="display: flex; justify-content: center"><img style="width:100px" src=${newOrder.workPlaceStyle.images.ReceiptsLogo}></div>
@@ -164,6 +177,8 @@ const printOrderWithOrderObject = (newOrder) => {
                 <p>ثمن الاصناف: ${newOrder.total}₪</p>
                 <p>رسوم التوصيل: ${newOrder.deliveryFee}₪</p>
                 <p>الإجمالي الكلي للدفع: ${newOrder.grandTotal}₪</p>
+                <hr>
+                <p style="font-size: 12px;text-align: center">Powered By:\nApps Caps LTD</p>
             </div>
         </body>
     </html>
@@ -177,6 +192,9 @@ const printOrderWithOrderObject = (newOrder) => {
         // wait 3 seconds
         await new Promise(resolve => setTimeout(resolve, 3000));
         printWin.webContents.print({
+            margins: {
+                marginType: 'none',
+            },
             deviceName: selectedPrinter,
             silent: true,
             printBackground: false
