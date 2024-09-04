@@ -226,6 +226,10 @@ const printOrderWithOrderObject = (newOrder) => {
             margins: {
                 marginType: 'none',
             },
+            pageSize: {
+                width: 80000,
+                height: 200000,
+            },
             deviceName: selectedPrinter,
             silent: true,
             printBackground: false
