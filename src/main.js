@@ -151,6 +151,7 @@ const printOrderWithOrderObject = (newOrder) => {
                         padding: 0;
                         direction: rtl;
                         font-family: Alexandria, sans-serif;
+                        width: 100%;
                     }
                     #receipt-box {
                         margin-top: ${userMargin.top || 0}mm;
@@ -162,6 +163,9 @@ const printOrderWithOrderObject = (newOrder) => {
                     #container {
                         width: ${paperSize || '80mm'};
                         margin: 0;
+                        position: absolute;
+                        left: 0;
+                        top: 0;
                     }
                 }
             </style>
