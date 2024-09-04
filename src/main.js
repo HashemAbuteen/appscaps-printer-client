@@ -143,21 +143,31 @@ const printOrderWithOrderObject = (newOrder) => {
             <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@100..900&display=swap" rel="stylesheet">
             <style>
                 @media only print {
-                    html {
-                        width: ${paperSize || '80mm'};
-                        padding-top: ${userMargin.top || 0}mm;
-                        padding-right: ${userMargin.right || 0}mm;
-                        padding-bottom: ${userMargin.bottom || 0}mm;
-                        padding-left: ${userMargin.left || 0}mm;
+                    *{
+                        box-sizing: border-box;
                     }
-                    body {
+                    html, body {
                         margin: 0;
                         padding: 0;
+                        direction: rtl;
+                        font-family: Alexandria, sans-serif;
+                    }
+                    #receipt-box {
+                        margin-top: ${userMargin.top || 0}mm;
+                        margin-right: ${userMargin.right || 0}mm;
+                        margin-bottom: ${userMargin.bottom || 0}mm;
+                        margin-left: ${userMargin.left || 0}mm;
+                        padding: 0;
+                    }
+                    #container {
+                        width: ${paperSize || '80mm'};
+                        margin: 0;
                     }
                 }
             </style>
         </head>
         <body style="direction: rtl;font-family: Alexandria, sans-serif; padding: 1mm">
+            <div id="container">
             <div id="receipt-box">
                 <p style="font-size: 12px;text-align: center">${newOrder.id}</p>
                 <div style="display: flex; justify-content: center"><img style="width:100px" src=${newOrder.workPlaceStyle.images.ReceiptsLogo}></div>
@@ -195,6 +205,7 @@ const printOrderWithOrderObject = (newOrder) => {
                 <p>الإجمالي الكلي للدفع: ${newOrder.grandTotal}₪</p>
                 <hr>
                 <p style="font-size: 12px;text-align: center">Powered By:\nApps Caps LTD</p>
+            </div>
             </div>
         </body>
     </html>
