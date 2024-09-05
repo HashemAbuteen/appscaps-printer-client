@@ -143,9 +143,6 @@ const printOrderWithOrderObject = (newOrder) => {
             <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@100..900&display=swap" rel="stylesheet">
             <style>
                 @media only print {
-                    *{
-                        box-sizing: border-box;
-                    }
                     html, body {
                         margin: 0;
                         padding: 0;
@@ -163,9 +160,8 @@ const printOrderWithOrderObject = (newOrder) => {
                     #container {
                         width: ${paperSize || '80mm'};
                         margin: 0;
-                        position: absolute;
-                        left: 0;
-                        top: 0;
+                        display: flex;
+                        flex-direction: column;
                     }
                 }
             </style>
@@ -228,7 +224,7 @@ const printOrderWithOrderObject = (newOrder) => {
             },
             pageSize: {
                 width: 80000,
-                height: 200000,
+                height: 20000000,
             },
             deviceName: selectedPrinter,
             silent: true,
