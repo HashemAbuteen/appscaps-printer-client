@@ -143,6 +143,9 @@ const printOrderWithOrderObject = (newOrder) => {
             <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@100..900&display=swap" rel="stylesheet">
             <style>
                 @media only print {
+                    *{
+                        box-sizing: border-box;
+                    }
                     html, body {
                         margin: 0;
                         padding: 0;
@@ -162,6 +165,9 @@ const printOrderWithOrderObject = (newOrder) => {
                         margin: 0;
                         display: flex;
                         flex-direction: column;
+                        position: absolute;
+                        left: 0;
+                        top: 0;
                     }
                 }
             </style>
