@@ -121,7 +121,7 @@ const printOrderWithOrderObject = (newOrder) => {
         return;
     }
 
-    const printWin = new BrowserWindow({show: false});
+    const printWin = new BrowserWindow({show: true});
 
     // translate delivery type to Arabic
     let deliveryType = '';
@@ -168,6 +168,7 @@ const printOrderWithOrderObject = (newOrder) => {
                         position: absolute;
                         left: 0;
                         top: 0;
+                        padding: 5mm;
                     }
                 }
             </style>
@@ -238,7 +239,7 @@ const printOrderWithOrderObject = (newOrder) => {
         }, (success, errorType) => {
             if (!success) console.error(errorType);
             else console.log('Print initiated successfully');
-            printWin.close();
+            // printWin.close();
         });
     });
 };
