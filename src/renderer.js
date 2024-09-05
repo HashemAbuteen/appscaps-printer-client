@@ -76,3 +76,7 @@ document.getElementById('logoutButton').addEventListener('click', async () => {
     await window.electronAPI.logout();
 });
 
+document.getElementById('printTest').addEventListener('click', async () => {
+    await window.electronAPI.printTest();
+});
+

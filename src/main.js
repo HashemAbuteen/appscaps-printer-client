@@ -121,7 +121,7 @@ const printOrderWithOrderObject = (newOrder) => {
         return;
     }
 
-    const printWin = new BrowserWindow({show: true});
+    const printWin = new BrowserWindow({show: false});
 
     // translate delivery type to Arabic
     let deliveryType = '';
@@ -239,7 +239,7 @@ const printOrderWithOrderObject = (newOrder) => {
         }, (success, errorType) => {
             if (!success) console.error(errorType);
             else console.log('Print initiated successfully');
-            // printWin.close();
+            printWin.close();
         });
     });
 };
@@ -314,6 +314,55 @@ ipcMain.handle('set-user-margin', async (event, margin, direction) => {
 ipcMain.handle('get-user-margin', async (event) => {
     userMargin = store.get('userMargin') || {};
     return userMargin;
+});
+
+ipcMain.handle('print-test', async (event) => {
+   const testOrder = {
+       order: {
+           clientName: 'Test Order',
+           clientPhone: '0123456789',
+           phoneCountry: '+972',
+           paymentMethod: 'cashOnDelivery',
+           address: 'test address',
+           prepareTime: '',
+           deliveryFee: 20,
+           prepareType: 'now',
+           couponCode: null,
+           numberOfPersons: 0,
+           deliveryType: 'Delivery',
+           items: [
+               {
+                   title: 'Test Item',
+                   price: 100,
+                   currentValue: 1,
+                   options: [
+                       {
+                           title: 'Test Option List',
+                           options: [
+                               {
+                                   title: 'Test Option',
+                                   price: 10,
+                                   currentValue: 1,
+                               }
+                           ]
+                       }
+                   ]
+               }
+           ],
+       },
+       grandTotal: 130,
+       id: '66d9f22be3ef0e9c664272bd',
+       workPlaceId: '65f69d6facd51ca7e8beff90',
+       total: 110,
+       createdAt: '1725559339477',
+       deliveryFee: 20,
+       workPlaceStyle: {
+           images: {
+               ReceiptsLogo: 'https://api.appscaps.tech/images/65f69d6facd51ca7e8beff90/486178c6-5f20-421b-bcd3-087f1e9a4133.png'
+           }
+       }
+   };
+    printOrderWithOrderObject(testOrder);
 });
 
 app.on('ready', createWindow);
