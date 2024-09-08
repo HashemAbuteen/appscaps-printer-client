@@ -159,22 +159,16 @@ const printOrderWithOrderObject = (newOrder) => {
                         margin-bottom: ${userMargin.bottom || 0}mm;
                         margin-left: ${userMargin.left || 0}mm;
                         padding: 0;
-                    }
-                    #container {
-                        width: ${paperSize || '80mm'};
-                        margin: 0;
-                        display: flex;
-                        flex-direction: column;
                         position: absolute;
                         left: 0;
                         top: 0;
+                        width: ${paperSize || '80mm'};
                         padding: 5mm;
                     }
                 }
             </style>
         </head>
         <body style="direction: rtl;font-family: Alexandria, sans-serif; padding: 1mm">
-            <div id="container">
             <div id="receipt-box">
                 <p style="font-size: 12px;text-align: center">${newOrder.id}</p>
                 <div style="display: flex; justify-content: center"><img style="width:100px" src=${newOrder.workPlaceStyle.images.ReceiptsLogo}></div>
@@ -213,7 +207,6 @@ const printOrderWithOrderObject = (newOrder) => {
                 <hr>
                 <p style="font-size: 12px;text-align: center">Powered By:\nApps Caps LTD</p>
             </div>
-            </div>
         </body>
     </html>
 `;
@@ -233,6 +226,7 @@ const printOrderWithOrderObject = (newOrder) => {
                 width: 80000,
                 height: 20000000,
             },
+            scaleFactor: 0.5,
             deviceName: selectedPrinter,
             silent: true,
             printBackground: false
