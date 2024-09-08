@@ -159,9 +159,6 @@ const printOrderWithOrderObject = (newOrder) => {
                         margin-bottom: ${userMargin.bottom || 0}mm;
                         margin-left: ${userMargin.left || 0}mm;
                         padding: 0;
-                        position: absolute;
-                        left: 0;
-                        top: 0;
                         width: ${paperSize || '80mm'};
                         padding: 5mm;
                     }
