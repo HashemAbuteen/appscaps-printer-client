@@ -169,8 +169,8 @@ const printOrderWithOrderObject = (newOrder) => {
             </style>
         </head>
         <body style="direction: rtl;font-family: Alexandria, sans-serif; padding: 1mm">
-            <div id="receipt-box">
-                <p style="font-size: 12px;text-align: center">${newOrder.id}</p>
+            <div id="receipt-box" style="font-size: 8px;>
+                <p style="text-align: center">${newOrder.id}</p>
                 <div style="display: flex; justify-content: center"><img style="width:100px" src=${newOrder.workPlaceStyle.images.ReceiptsLogo}></div>
                 <h1 style="text-align: center">${deliveryType}</h1>
                 <h5 style="text-align: center">${orderTime}</h5>
@@ -205,7 +205,7 @@ const printOrderWithOrderObject = (newOrder) => {
                 <p>رسوم التوصيل: ${newOrder.deliveryFee}₪</p>
                 <p>الإجمالي الكلي للدفع: ${newOrder.grandTotal}₪</p>
                 <hr>
-                <p style="font-size: 12px;text-align: center">Powered By:\nApps Caps LTD</p>
+                <p style="text-align: center">Powered By:\nApps Caps LTD</p>
             </div>
         </body>
     </html>
