@@ -158,18 +158,17 @@ const printOrderWithOrderObject = (newOrder) => {
                         margin-right: ${userMargin.right || 0}mm;
                         margin-bottom: ${userMargin.bottom || 0}mm;
                         margin-left: ${userMargin.left || 0}mm;
-                        padding: 0;
+                        padding: 3px;
                         position: absolute;
                         left: 0;
                         top: 0;
                         width: ${paperSize || '80mm'};
-                        padding: 5mm;
                     }
                 }
             </style>
         </head>
         <body style="direction: rtl;font-family: Alexandria, sans-serif; padding: 1mm">
-            <div id="receipt-box" style="font-size: 8px;>
+            <div id="receipt-box" style="font-size: 8px;">
                 <p style="text-align: center">${newOrder.id}</p>
                 <div style="display: flex; justify-content: center"><img style="width:100px" src=${newOrder.workPlaceStyle.images.ReceiptsLogo}></div>
                 <h1 style="text-align: center">${deliveryType}</h1>
