@@ -158,7 +158,8 @@ const printOrderWithOrderObject = (newOrder) => {
                         margin-right: ${userMargin.right || 0}mm;
                         margin-bottom: ${userMargin.bottom || 0}mm;
                         margin-left: ${userMargin.left || 0}mm;
-                        padding: 3px;
+                        padding: 0;
+                        padding-right: 5mm;
                         position: absolute;
                         left: 0;
                         top: 0;
