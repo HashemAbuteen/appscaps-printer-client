@@ -187,11 +187,11 @@ const printOrderWithOrderObject = (newOrder) => {
                             <p><strong>${item.currentValue} <span dir="rtl"> X </span> ${item.title} - <span dir="rtl">${item.price}₪</span></strong><p>
                             <ul style="list-style-type: none; padding-right: 15px;">
                                 ${item.options.map(option => `
-                                    <li>
+                                    <li style="margin-bottom: 3px;">
                                         <u>${option.title}</u>
                                         <ul style="list-style-type: none; padding-right: 30px;">
                                             ${option.options.map(opt => `
-                                                <li>${opt.currentValue} <span dir="rtl"> X </span> ${opt.title} - <span dir="rtl">${opt.price}₪</span></li>
+                                                <li style="margin-bottom: 3px;">${opt.currentValue} <span dir="rtl"> X </span> ${opt.title} - <span dir="rtl">${opt.price}₪</span></li>
                                             `).join('')}
                                         </ul>
                                     </li>
