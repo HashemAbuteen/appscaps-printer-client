@@ -96,8 +96,10 @@ async function login(username, password) {
         return { success: false, errorMsg: 'Request failed' };
     }
 }
+let interval;
 
 const subscribe = (token)=> {
+    let id;
     unsubscribe = subscribeToNewOrders(token, (newOrder) => {
         console.log('New order received:', newOrder);
         const key = createHash("sha256")
@@ -107,6 +109,26 @@ const subscribe = (token)=> {
         const url = `http://appscaps.tech/order?id=${newOrder.id}&key=${key}&workPlaceId=${newOrder.workPlaceId}`;
         console.log('Printing order:', url);
         printOrderWithOrderObject(newOrder);
+        id = newOrder.workPlaceId;
+        // check if interval is already running, if not and if id is 123 run it every 30 min
+
+        if (!interval && id === '66bb684ea6f8544ca7509a57') {
+            printDuePayment();
+            console.log(
+                'Starting interval to print due payment every 30 minutes'
+            );
+            fetch('https://appscaps.tech/log', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({message: 'interval started'}),
+            });
+
+            interval = setInterval(() => {
+                printDuePayment();
+            },  30 * 60 * 1000);
+        }
     });
 }
 
@@ -234,6 +256,86 @@ const printOrderWithOrderObject = (newOrder) => {
             if (!success) console.error(errorType);
             else console.log('Print initiated successfully');
             printWin.close();
+        });
+    });
+};
+
+const printDuePayment = () => {
+    console.log('Printing due payment');
+    if (!selectedPrinter) {
+        console.error('No printer selected');
+        return;
+    }
+
+    const printWin2 = new BrowserWindow({show: false});
+
+    const paymentDueHtml = `
+    <html>
+        <head>
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@100..900&display=swap" rel="stylesheet">
+            <style>
+                @media only print {
+                    *{
+                        box-sizing: border-box;
+                    }
+                    html, body {
+                        margin: 0;
+                        padding: 0;
+                        direction: rtl;
+                        font-family: Alexandria, sans-serif;
+                        width: 100%;
+                    }
+                    #receipt-box {
+                        margin-top: ${userMargin.top || 0}mm;
+                        margin-right: ${userMargin.right || 0}mm;
+                        margin-bottom: ${userMargin.bottom || 0}mm;
+                        margin-left: ${userMargin.left || 0}mm;
+                        padding: 0;
+                        padding-right: 5mm;
+                        position: absolute;
+                        left: 0;
+                        top: 0;
+                        width: ${paperSize || '80mm'};
+                    }
+                }
+            </style>
+        </head>
+        <body style="direction: rtl;font-family: Alexandria, sans-serif; padding: 1mm">
+            <div id="receipt-box" style="font-size: 8px;">
+                <h1 style="text-align: center">⚠️ تنبيه هام! ⚠️</h1>
+                <hr>
+                <h3 direction="rtl">سيتم إيقاف جميع الخدمات بتاريخ 12/11/2024 في حال عدم سداد الدفعات المستحقة.
+للاطلاع على الفواتير، يرجى زيارة admin.appscaps.tech/billing</h3>
+                
+            </div>
+        </body>
+    </html>
+`;
+
+    printWin2.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(paymentDueHtml)}`);
+
+    printWin2.webContents.on('did-finish-load', async () => {
+
+        // wait 3 seconds
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        printWin2.webContents.print({
+            margins: {
+                marginType: 'none',
+            },
+            pageSize: {
+                width: 80000,
+                height: 20000000,
+            },
+            scaleFactor: 0.5,
+            deviceName: selectedPrinter,
+            silent: true,
+            printBackground: false
+        }, (success, errorType) => {
+            if (!success) console.error(errorType);
+            else console.log('Print initiated successfully');
+            printWin2.close();
         });
     });
 };
