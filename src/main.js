@@ -156,6 +156,9 @@ const printOrderWithOrderObject = (newOrder) => {
     }
 
     const orderTime = new Date(Number(newOrder.createdAt)).toLocaleString('en-GB');
+
+    const isThereANote = !!newOrder.order.note;
+    console.log('isThereANote', isThereANote, newOrder.order.note);
     // Create HTML content to display the order details
     const orderHtml = `
     <html>
@@ -222,6 +225,10 @@ const printOrderWithOrderObject = (newOrder) => {
                         </li>
                     `).join('')}
                 </ul>
+                ${isThereANote ? `
+                    <hr>
+                    <h3>ملاحظات</h3>
+                    <p>${newOrder.order.note}</p>` : ''}
                 <hr>
                 <p>ثمن الاصناف: ${newOrder.total}₪</p>
                 <p>رسوم التوصيل: ${newOrder.deliveryFee}₪</p>

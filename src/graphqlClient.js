@@ -38,6 +38,7 @@ function subscribeToNewOrders(token, onNewOrder) {
                       couponCode
                       numberOfPersons
                       deliveryType
+                      note
                       items {
                         title
                         currentValue
