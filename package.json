@@ -1,6 +1,6 @@
 {
   "name": "print-order-client",
-  "version": "1.0.24",
+  "version": "1.0.26",
   "main": "src/main.js",
   "scripts": {
     "build": "node build.js",
@@ -8,7 +8,7 @@
   },
   "build": {
     "appId": "com.appscaps.printer-client",
-    "productName": "Appscaps Printer Client",
+    "productName": "Taps Apps Printer Client",
     "files": [
       "src/**/*",
       "package.json"
@@ -26,9 +26,10 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64", "ia32"]
+          "arch": ["x64","ia32"]
         }
       ],
+      "artifactName": "${productName}-${version}-${arch}.exe",
       "icon": "build/icon.ico"
     }
   },
