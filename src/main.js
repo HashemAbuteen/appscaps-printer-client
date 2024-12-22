@@ -159,6 +159,15 @@ const printOrderWithOrderObject = (newOrder) => {
     const orderTime = new Date(Number(newOrder.createdAt)).toLocaleString('en-GB');
 
     const isThereANote = !!newOrder.order.note;
+
+    // removing empty options-groups
+    for (let i = 0; i < newOrder.order.items.length; i++) {
+        for (let j = 0; j < newOrder.order.items[i].options.length; j++) {
+            if (newOrder.order.items[i].options[j].options.length === 0) {
+                newOrder.order.items[i].options.splice(j, 1);
+            }
+    }}
+
     // Create HTML content to display the order details
     const orderHtml = `
     <html>
