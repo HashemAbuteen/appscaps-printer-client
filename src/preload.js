@@ -13,5 +13,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getPaperSize: () => ipcRenderer.invoke('get-paper-size'),
     setUserMargin: (margin, direction) => ipcRenderer.invoke('set-user-margin', margin, direction),
     getUserMargin: () => ipcRenderer.invoke('get-user-margin'),
+    getUserFontSize: () => ipcRenderer.invoke('get-user-font-size'),
+    setUserFontSize: (fontSize) => ipcRenderer.invoke('set-user-font-size', fontSize),
     printTest: () => ipcRenderer.invoke('print-test'),
 });

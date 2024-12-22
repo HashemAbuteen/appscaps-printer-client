@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('marginTop').value = userMargin.top || 0;
     document.getElementById('marginRight').value = userMargin.right || 0;
     document.getElementById('marginBottom').value = userMargin.bottom || 0;
+    document.getElementById('userFontSize').value = await window.electronAPI.getUserFontSize();
 });
 
 document.getElementById('listPrinters').addEventListener('click', listPrinters);
@@ -78,5 +79,10 @@ document.getElementById('logoutButton').addEventListener('click', async () => {
 
 document.getElementById('printTest').addEventListener('click', async () => {
     await window.electronAPI.printTest();
+});
+
+document.getElementById('userFontSize').addEventListener('change', async (event) => {
+    const fontSize = event.target.value;
+    await window.electronAPI.setUserFontSize(fontSize);
 });
 

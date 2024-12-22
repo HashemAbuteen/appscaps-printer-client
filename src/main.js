@@ -37,6 +37,7 @@ let store;
 let unsubscribe;
 let paperSize = '80mm';
 let userMargin = {};
+let userFontSize = 8;
 
 async function createWindow() {
     store = await loadStore();
@@ -158,7 +159,6 @@ const printOrderWithOrderObject = (newOrder) => {
     const orderTime = new Date(Number(newOrder.createdAt)).toLocaleString('en-GB');
 
     const isThereANote = !!newOrder.order.note;
-    console.log('isThereANote', isThereANote, newOrder.order.note);
     // Create HTML content to display the order details
     const orderHtml = `
     <html>
@@ -194,7 +194,7 @@ const printOrderWithOrderObject = (newOrder) => {
             </style>
         </head>
         <body style="direction: rtl;font-family: Alexandria, sans-serif; padding: 1mm">
-            <div id="receipt-box" style="font-size: 8px;">
+            <div id="receipt-box" style="font-size: ${userFontSize}px;">
                 <p style="text-align: center">${newOrder.id}</p>
                 <div style="display: flex; justify-content: center"><img style="width:100px" src=${newOrder.workPlaceStyle.images.ReceiptsLogo}></div>
                 <h1 style="text-align: center">${deliveryType}</h1>
@@ -420,6 +420,16 @@ ipcMain.handle('get-user-margin', async (event) => {
     return userMargin;
 });
 
+ipcMain.handle('get-user-font-size', async (event) => {
+    userFontSize = store.get('userFontSize') || 8;
+    return userFontSize;
+});
+
+ipcMain.handle('set-user-font-size', async (event, size) => {
+    userFontSize = size;
+    store.set('userFontSize', userFontSize);
+});
+
 ipcMain.handle('print-test', async (event) => {
    const testOrder = {
        order: {
@@ -462,7 +472,7 @@ ipcMain.handle('print-test', async (event) => {
        deliveryFee: 20,
        workPlaceStyle: {
            images: {
-               ReceiptsLogo: 'https://api.appscaps.tech/images/65f69d6facd51ca7e8beff90/486178c6-5f20-421b-bcd3-087f1e9a4133.png'
+               ReceiptsLogo: 'https://fakeimg.pl/200x200',
            }
        }
    };
