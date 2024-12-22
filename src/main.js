@@ -234,7 +234,8 @@ const printOrderWithOrderObject = (newOrder) => {
                 <p>رسوم التوصيل: ${newOrder.deliveryFee}₪</p>
                 <p>الإجمالي الكلي للدفع: ${newOrder.grandTotal}₪</p>
                 <hr>
-                <p style="text-align: center">Powered By:\nApps Caps LTD</p>
+                <p style="text-align: center">Powered By:\nTaps Apps LTD</p>
+                <p style="text-align: center; font-size: 0.8em;">tapsapps.com</p>
             </div>
         </body>
     </html>
