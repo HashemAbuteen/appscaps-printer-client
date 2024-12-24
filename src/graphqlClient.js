@@ -49,6 +49,7 @@ function subscribeToNewOrders(token, onNewOrder) {
                             price
                             title
                             currentValue
+                            portion
                           }
                         }
                       }

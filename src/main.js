@@ -225,7 +225,7 @@ const printOrderWithOrderObject = (newOrder) => {
                                         <u>${option.title}</u>
                                         <ul style="list-style-type: none; padding-right: 30px;">
                                             ${option.options.map(opt => `
-                                                <li style="margin-bottom: 3px;">${opt.currentValue} <span dir="rtl"> X </span> ${opt.title} - <span dir="rtl">${opt.price}₪</span></li>
+                                                <li style="margin-bottom: 3px;">${opt.currentValue} <span dir="rtl"> X </span> ${opt.title} - ${opt.portion==='right' ? "(النصف الأيمن)" : opt.portion==='left' ? "(النصف الأيسر)": ""} <span dir="rtl">${opt.price}₪</span></li>
                                             `).join('')}
                                         </ul>
                                     </li>
