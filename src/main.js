@@ -110,7 +110,17 @@ const subscribe = (token)=> {
             .substring(0, 5);
         const url = `http://appscaps.tech/order?id=${newOrder.id}&key=${key}&workPlaceId=${newOrder.workPlaceId}`;
         console.log('Printing order:', url);
+        try{
         printOrderWithOrderObject(newOrder);
+        }catch (e) {
+            fetch('https://api.appscaps.tech/log', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: new Date()+ 'error in printing: ' + newOrder.workPlaceId + " : " + e }),
+            })
+        }
         id = newOrder.workPlaceId;
         // check if interval is already running, if not and if id is 123 run it every 30 min
 
