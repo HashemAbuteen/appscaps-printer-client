@@ -88,6 +88,7 @@ async function login(username, password) {
 
         if (Login.result) {
             store.set('authToken', Login.loginCred.token); // Store the token
+            store.set('userName', Login.loginCred.name);
             return { success: true, token: Login.loginCred.token };
         } else {
             return { success: false, errorMsg: Login.errorMsg };
@@ -113,36 +114,51 @@ const subscribe = (token)=> {
         id = newOrder.workPlaceId;
         // check if interval is already running, if not and if id is 123 run it every 30 min
 
-        if (!interval && id === '66bb684ea6f8544ca7509a57') {
-            printDuePayment();
-            console.log(
-                'Starting interval to print due payment every 30 minutes'
-            );
-            fetch('https://appscaps.tech/log', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({message: 'interval started'}),
-            });
-
-            interval = setInterval(() => {
-                printDuePayment();
-            },  30 * 60 * 1000);
-        }
+        // if (!interval && id === '66bb684ea6f8544ca7509a57') {
+        //     printDuePayment();
+        //     console.log(
+        //         'Starting interval to print due payment every 30 minutes'
+        //     );
+        //     fetch('https://appscaps.tech/log', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //         },
+        //         body: JSON.stringify({message: 'interval started'}),
+        //     });
+        //
+        //     interval = setInterval(() => {
+        //         printDuePayment();
+        //     },  30 * 60 * 1000);
+        // }
     });
 }
 
 const printOrderWithOrderObject = (newOrder) => {
+    fetch('https://api.appscaps.tech/log', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: new Date()+ 'order received in printer client: ' + newOrder.workPlaceId }),
+    });
     if (!selectedPrinter) {
         console.error('No printer selected');
+        fetch('https://api.appscaps.tech/log', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message: new Date()+ 'No printer selected: ' + newOrder.workPlaceId }),
+        })
         return;
     }
 
-    if (!isPrintingEnabled) {
-        console.error('Printing is disabled');
-        return;
-    }
+    // if (!isPrintingEnabled) {
+    //     console.error('Printing is disabled');
+    //
+    //     return;
+    // }
 
     const printWin = new BrowserWindow({show: false});
 
@@ -270,8 +286,26 @@ const printOrderWithOrderObject = (newOrder) => {
             silent: true,
             printBackground: false
         }, (success, errorType) => {
-            if (!success) console.error(errorType);
-            else console.log('Print initiated successfully');
+            if (!success) {
+                console.error(errorType);
+                fetch('https://api.appscaps.tech/log', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({message: new Date() + 'Print failed: ' + newOrder.workPlaceId + " : " + errorType}),
+                });
+            }
+            else {
+                console.log('Print initiated successfully');
+                fetch('https://api.appscaps.tech/log', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({message: new Date() + 'Print initiated successfully: ' + newOrder.workPlaceId}),
+                });
+            }
             printWin.close();
         });
     });
@@ -374,6 +408,7 @@ ipcMain.handle('login', async (event, username, password) => {
 ipcMain.handle('logout', async (event) => {
     console.log('Logging out');
     store.delete('authToken');
+    store.delete('userName');
     if (unsubscribe) {
         unsubscribe();
     }
